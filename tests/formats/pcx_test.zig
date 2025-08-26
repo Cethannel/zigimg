@@ -13,11 +13,13 @@ test "PCX indexed1 (linear)" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pcx/test-bpp1.pcx");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var file_buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(file_buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pcxFile = pcx.PCX{};
 
-    const pixels = try pcxFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pcxFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pcxFile.width(), 27);
@@ -50,11 +52,13 @@ test "PCX indexed4 (linear)" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pcx/test-bpp4.pcx");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var file_buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(file_buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pcxFile = pcx.PCX{};
 
-    const pixels = try pcxFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pcxFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pcxFile.width(), 27);
@@ -88,11 +92,13 @@ test "PCX indexed8 (linear)" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pcx/test-bpp8.pcx");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var file_buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(file_buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pcxFile = pcx.PCX{};
 
-    const pixels = try pcxFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pcxFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pcxFile.width(), 27);
@@ -128,11 +134,13 @@ test "PCX indexed24 (planar)" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pcx/test-bpp24.pcx");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var file_buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(file_buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pcxFile = pcx.PCX{};
 
-    const pixels = try pcxFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pcxFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pcxFile.header.planes, 3);

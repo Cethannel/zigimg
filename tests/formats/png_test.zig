@@ -33,7 +33,7 @@ test "Should error on non PNG images" {
 test "loadHeader_valid" {
     const expectEqual = std.testing.expectEqual;
     var buffer = valid_header_data.*;
-    var stream = Image.Stream{ .buffer = std.io.fixedBufferStream(&buffer) };
+    var stream = std.io.Reader.fixed(&buffer);
     const header = try png.loadHeader(&stream);
     try expectEqual(@as(u32, 0xff), header.width);
     try expectEqual(@as(u32, 0x75), header.height);
@@ -46,25 +46,25 @@ test "loadHeader_valid" {
 
 test "PNG loadHeader() should error when data is empty" {
     var buffer: [0]u8 = undefined;
-    var stream = Image.Stream{ .buffer = std.io.fixedBufferStream(&buffer) };
+    var stream = std.io.Reader.fixed(&buffer);
     try expectError(Image.ReadError.EndOfStream, png.loadHeader(&stream));
 }
 
 test "PNG loadHeader() should error when header signature is invalid" {
     var buffer = "asdsdasdasdsads".*;
-    var stream = Image.Stream{ .buffer = std.io.fixedBufferStream(&buffer) };
+    var stream = std.io.Reader.fixed(&buffer);
     try expectError(Image.ReadError.InvalidData, png.loadHeader(&stream));
 }
 
 test "PNG loadHeader() should error on bad header chunk" {
     var buffer = (magic_header ++ "\x00\x00\x01\x0d" ++ png.Chunks.IHDR.name ++ "asad").*;
-    var stream = Image.Stream{ .buffer = std.io.fixedBufferStream(&buffer) };
+    var stream = std.io.Reader.fixed(&buffer);
     try expectError(Image.ReadError.InvalidData, png.loadHeader(&stream));
 }
 
 test "PNG loadHeader() should error when header is too short" {
     var buffer = (magic_header ++ "\x00\x00\x00\x0d" ++ png.Chunks.IHDR.name ++ "asad").*;
-    var stream = Image.Stream{ .buffer = std.io.fixedBufferStream(&buffer) };
+    var stream = std.io.Reader.fixed(&buffer);
     try expectError(Image.ReadError.EndOfStream, png.loadHeader(&stream));
 }
 
@@ -102,7 +102,7 @@ test "PNG loadHeader() should error on invalid data in header" {
 fn testHeaderWithInvalidValue(buf: []u8, position: usize, val: u8) !void {
     const origin = buf[position];
     buf[position] = val;
-    var stream = Image.Stream{ .buffer = std.io.fixedBufferStream(buf) };
+    var stream = std.io.Reader.fixed(buf);
     try expectError(Image.ReadError.InvalidData, png.loadHeader(&stream));
     buf[position] = origin;
 }
@@ -877,7 +877,7 @@ test "PNG Official Test Suite" {
 
 // Useful to quickly test everything on full dir of images
 pub fn testWithDir(directory: []const u8, testMd5Sig: bool) !void {
-    var testdir = std.fs.cwd().openDir(directory, .{ .access_sub_paths = false, .no_follow = true, .iterate = true }) catch null;
+    var testdir: ?std.fs.Dir = std.fs.cwd().openDir(directory, .{ .access_sub_paths = false, .no_follow = true, .iterate = true }) catch null;
     if (testdir) |*idir| {
         defer idir.close();
         var it = idir.iterate();
@@ -888,7 +888,9 @@ pub fn testWithDir(directory: []const u8, testMd5Sig: bool) !void {
             if (testMd5Sig) std.debug.print("Testing file {s} ... ", .{entry.name});
             var tst_file = try idir.openFile(entry.name, .{ .mode = .read_only });
             defer tst_file.close();
-            var stream = Image.Stream{ .file = tst_file };
+            var file_buffer: [1024]u8 = @splat(0);
+            var reader = tst_file.reader(file_buffer[0..]);
+            const stream = &reader.interface;
             if (entry.name[0] == 'x' and entry.name[2] != 't' and entry.name[2] != 's') {
                 try std.testing.expectError(Image.ReadError.InvalidData, png.loadHeader(&stream));
                 if (testMd5Sig) std.debug.print("OK\n", .{});
@@ -962,7 +964,7 @@ test "InfoProcessor on Png Test suite" {
         var it = idir.iterate();
 
         var info_buffer: [16384]u8 = undefined;
-        var info_stream = std.io.StreamSource{ .buffer = std.io.fixedBufferStream(info_buffer[0..]) };
+        var info_stream = std.io.Reader.fixed(info_buffer[0..]);
 
         while (try it.next()) |entry| {
             if (entry.kind != .file or !std.mem.eql(u8, std.fs.path.extension(entry.name), ".png")) {

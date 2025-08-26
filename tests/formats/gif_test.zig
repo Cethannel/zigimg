@@ -11,7 +11,9 @@ test "Should error on non GIF images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var file_buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(file_buffer[0..]);
+    const stream_source = &reader.interface;
 
     var gif_file = gif.GIF.init(helpers.zigimg_test_allocator);
     defer gif_file.deinit();
@@ -27,24 +29,29 @@ test "GIF test suite" {
         return error.SkipZigTest;
     }
 
-    var test_list = std.ArrayList([]const u8).init(helpers.zigimg_test_allocator);
-    defer test_list.deinit();
+    var test_list = std.ArrayList([]const u8).empty;
+    defer test_list.deinit(helpers.zigimg_test_allocator);
 
     const test_list_file = try helpers.testOpenFile(helpers.fixtures_path ++ "gif/TESTS");
     defer test_list_file.close();
 
-    var buffered_reader = std.io.bufferedReader(test_list_file.reader());
-    var reader = buffered_reader.reader();
+    var buffer: [1024]u8 = @splat(0);
+    var buffered_reader = test_list_file.reader(buffer[0..]);
+    var reader = &buffered_reader.interface;
 
     var area_alloc = std.heap.ArenaAllocator.init(helpers.zigimg_test_allocator);
     const area_allocator = area_alloc.allocator();
     defer area_alloc.deinit();
 
-    var read_line_opt = try reader.readUntilDelimiterOrEofAlloc(area_allocator, '\n', std.math.maxInt(u16));
+    var read_line_opt = reader.takeDelimiterExclusive('\n');
 
-    while (read_line_opt) |read_line| {
-        try test_list.append(read_line);
-        read_line_opt = try reader.readUntilDelimiterOrEofAlloc(area_allocator, '\n', std.math.maxInt(u16));
+    loop: while (read_line_opt) |read_line| {
+        const line = try area_allocator.dupe(u8, read_line);
+        try test_list.append(helpers.zigimg_test_allocator, line);
+        read_line_opt = reader.takeDelimiterExclusive('\n');
+    } else |err| switch (err) {
+        error.EndOfStream => break :loop,
+        else => return err,
     }
 
     for (test_list.items) |entry| {
@@ -61,7 +68,9 @@ test "Rotating Earth GIF" {
     const gif_input_file = try helpers.testOpenFile(helpers.fixtures_path ++ "gif/rotating_earth.gif");
     defer gif_input_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = gif_input_file };
+    var file_buffer: [1024]u8 = @splat(0);
+    var reader = gif_input_file.reader(file_buffer[0..]);
+    const stream_source = &reader.interface;
 
     var gif_file = gif.GIF.init(helpers.zigimg_test_allocator);
     defer gif_file.deinit();
@@ -204,7 +213,9 @@ fn doGifTest(entry_name: []const u8) !void {
     var config_ini = IniFile.init(helpers.zigimg_test_allocator);
     defer config_ini.deinit();
 
-    var buffered_reader = std.io.bufferedReader(config_file.reader());
+    var file_buffer: [1024]u8 = @splat(0);
+    var file_reader = config_file.reader(file_buffer[0..]);
+    var buffered_reader = file_reader.interface;
 
     try config_ini.parse(buffered_reader.reader());
 
@@ -234,7 +245,9 @@ fn doGifTest(entry_name: []const u8) !void {
         const gif_input_file = try helpers.testOpenFile(gif_input_filepath);
         defer gif_input_file.close();
 
-        var stream_source = std.io.StreamSource{ .file = gif_input_file };
+        var file_buffer: [1024]u8 = @splat(0);
+        var reader = gif_input_file.reader(file_buffer[0..]);
+        const stream_source = &reader.interface;
 
         var gif_file = gif.GIF.init(helpers.zigimg_test_allocator);
         defer gif_file.deinit();

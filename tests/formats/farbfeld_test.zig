@@ -10,10 +10,12 @@ test "Farbfeld: Check dimension file" {
         const yellow_file = try helpers.testOpenFile(helpers.fixtures_path ++ "farbfeld/yellow-1x1-semitransparent.png.ff");
         defer yellow_file.close();
 
-        var yellow_stream_source = std.io.StreamSource{ .file = yellow_file };
+        var file_buffer: [1024]u8 = @splat(0);
+        var file_reader = yellow_file.reader(file_buffer[0..]);
+        const yellow_stream_source = &file_reader.interface;
 
         var yellow_image = farbfeld.Farbfeld{};
-        const yellow_pixels = try yellow_image.read(helpers.zigimg_test_allocator, &yellow_stream_source);
+        const yellow_pixels = try yellow_image.read(helpers.zigimg_test_allocator, yellow_stream_source);
         defer yellow_pixels.deinit(helpers.zigimg_test_allocator);
 
         try helpers.expectEq(yellow_image.header.width, 1);
@@ -55,10 +57,12 @@ test "Farbfeld: read writeImage output" {
     const source_file = try helpers.testOpenFile(helpers.fixtures_path ++ "farbfeld/yellow-1x1-semitransparent.png.ff");
     defer source_file.close();
 
-    var source_stream_source = std.io.StreamSource{ .file = source_file };
+    var file_buffer: [1024]u8 = @splat(0);
+    var file_reader = source_file.reader(file_buffer[0..]);
+    const source_stream_source = &file_reader.interface;
 
     var source_image: farbfeld.Farbfeld = .{};
-    const source_pixels = try source_image.read(helpers.zigimg_test_allocator, &source_stream_source);
+    const source_pixels = try source_image.read(helpers.zigimg_test_allocator, source_stream_source);
     defer source_pixels.deinit(helpers.zigimg_test_allocator);
 
     var target_buffer: [farbfeld.Header.size + @sizeOf(color.Rgba64) * 1]u8 = undefined;

@@ -136,7 +136,7 @@ test "Read grayscale images" {
 }
 
 test "Read subsampling images" {
-    var testdir = std.fs.cwd().openDir(helpers.fixtures_path ++ "jpeg/", .{ .access_sub_paths = false, .no_follow = true, .iterate = true }) catch null;
+    var testdir: ?std.fs.Dir = std.fs.cwd().openDir(helpers.fixtures_path ++ "jpeg/", .{ .access_sub_paths = false, .no_follow = true, .iterate = true }) catch null;
     if (testdir) |*idir| {
         defer idir.close();
 
@@ -149,13 +149,15 @@ test "Read subsampling images" {
             var tst_file = try idir.openFile(entry.name, .{ .mode = .read_only });
             defer tst_file.close();
 
-            var stream = Image.Stream{ .file = tst_file };
+            var file_buffer: [1024]u8 = @splat(0);
+            var reader = tst_file.reader(file_buffer[0..]);
+            const stream = &reader.interface;
 
             var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
             defer jpeg_file.deinit();
 
             var pixels_opt: ?color.PixelStorage = null;
-            _ = try jpeg_file.read(&stream, &pixels_opt);
+            _ = try jpeg_file.read(stream, &pixels_opt);
 
             defer {
                 if (pixels_opt) |pixels| {
