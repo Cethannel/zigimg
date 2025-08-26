@@ -96,9 +96,11 @@ test "Read simple version 4 24-bit RGB bitmap" {
 
     var the_bitmap = bmp.BMP{};
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const pixels = try the_bitmap.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try the_bitmap.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(the_bitmap.width(), 8);
@@ -151,11 +153,13 @@ test "Read a valid version 5 RGBA bitmap from file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/windows_rgba_v5.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var the_bitmap = bmp.BMP{};
 
-    const pixels = try the_bitmap.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try the_bitmap.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try verifyBitmapRGBAV5(the_bitmap, pixels);
@@ -178,11 +182,13 @@ test "Should error when reading an invalid file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/notbmp.png");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var the_bitmap = bmp.BMP{};
 
-    const invalidFile = the_bitmap.read(helpers.zigimg_test_allocator, &stream_source);
+    const invalidFile = the_bitmap.read(helpers.zigimg_test_allocator, stream_source);
     try helpers.expectError(invalidFile, ImageReadError.InvalidData);
 }
 

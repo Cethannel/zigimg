@@ -15,11 +15,13 @@ test "Should error on non QOI images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var qoi_file = qoi.QOI{};
 
-    const invalid_file = qoi_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const invalid_file = qoi_file.read(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalid_file, ImageReadError.InvalidData);
 }
@@ -28,11 +30,13 @@ test "Read zero.qoi file" {
     const file = try helpers.testOpenFile(zero_qoi_file);
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var reader_buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(reader_buffer[0..]);
+    const stream_source = &reader.interface;
 
     var qoi_file = qoi.QOI{};
 
-    const pixels = try qoi_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try qoi_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(qoi_file.width(), 512);

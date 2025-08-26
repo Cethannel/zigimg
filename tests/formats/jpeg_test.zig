@@ -11,13 +11,15 @@ test "Should error on non JPEG images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
 
     var pixels_opt: ?color.PixelStorage = null;
-    const invalidFile = jpeg_file.read(&stream_source, &pixels_opt);
+    const invalidFile = jpeg_file.read(stream_source, &pixels_opt);
     defer {
         if (pixels_opt) |pixels| {
             pixels.deinit(helpers.zigimg_test_allocator);
@@ -31,13 +33,15 @@ test "Read JFIF header properly and decode simple Huffman stream" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "jpeg/huff_simple0.jpg");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
 
     var pixels_opt: ?color.PixelStorage = null;
-    const frame = try jpeg_file.read(&stream_source, &pixels_opt);
+    const frame = try jpeg_file.read(stream_source, &pixels_opt);
 
     defer {
         if (pixels_opt) |pixels| {
@@ -61,13 +65,15 @@ test "Read the tuba properly" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "jpeg/tuba.jpg");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
 
     var pixels_opt: ?color.PixelStorage = null;
-    const frame = try jpeg_file.read(&stream_source, &pixels_opt);
+    const frame = try jpeg_file.read(stream_source, &pixels_opt);
 
     defer {
         if (pixels_opt) |pixels| {
@@ -96,13 +102,15 @@ test "Read grayscale images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "jpeg/grayscale_sample0.jpg");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
 
     var pixels_opt: ?color.PixelStorage = null;
-    const frame = try jpeg_file.read(&stream_source, &pixels_opt);
+    const frame = try jpeg_file.read(stream_source, &pixels_opt);
 
     defer {
         if (pixels_opt) |pixels| {
@@ -184,13 +192,15 @@ test "Read progressive jpeg with restart intervals" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "jpeg/tuba_restart_prog.jpg");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
 
     var pixels_opt: ?color.PixelStorage = null;
-    const frame = try jpeg_file.read(&stream_source, &pixels_opt);
+    const frame = try jpeg_file.read(stream_source, &pixels_opt);
 
     _ = frame;
 

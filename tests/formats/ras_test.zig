@@ -11,11 +11,13 @@ test "Should error on non RAS images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var ras_file = ras.RAS{};
 
-    const invalid_file = ras_file.read(&stream_source, helpers.zigimg_test_allocator);
+    const invalid_file = ras_file.read(stream_source, helpers.zigimg_test_allocator);
     try helpers.expectError(invalid_file, Image.ReadError.InvalidData);
 }
 
@@ -25,9 +27,11 @@ test "Sun-Raster 24-bit RGB24 uncompressed" {
 
     var the_bitmap = ras.RAS{};
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const pixels = try the_bitmap.read(&stream_source, helpers.zigimg_test_allocator);
+    const pixels = try the_bitmap.read(stream_source, helpers.zigimg_test_allocator);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(the_bitmap.width(), 664);
@@ -52,9 +56,11 @@ test "Sun-Raster 24-bit BGR24 uncompressed" {
 
     var the_bitmap = ras.RAS{};
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const pixels = try the_bitmap.read(&stream_source, helpers.zigimg_test_allocator);
+    const pixels = try the_bitmap.read(stream_source, helpers.zigimg_test_allocator);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(the_bitmap.width(), 664);
@@ -79,9 +85,11 @@ test "Sun-Raster 32-bit xRGB uncompressed" {
 
     var the_bitmap = ras.RAS{};
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const pixels = try the_bitmap.read(&stream_source, helpers.zigimg_test_allocator);
+    const pixels = try the_bitmap.read(stream_source, helpers.zigimg_test_allocator);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(the_bitmap.width(), 1250);
@@ -102,9 +110,11 @@ test "Sun-Raster 8-bit with palette uncompressed" {
 
     var the_bitmap = ras.RAS{};
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const pixels = try the_bitmap.read(&stream_source, helpers.zigimg_test_allocator);
+    const pixels = try the_bitmap.read(stream_source, helpers.zigimg_test_allocator);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(the_bitmap.width(), 1250);
@@ -127,9 +137,11 @@ test "Sun-Raster 8-bit grayscale uncompressed" {
 
     var the_bitmap = ras.RAS{};
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const pixels = try the_bitmap.read(&stream_source, helpers.zigimg_test_allocator);
+    const pixels = try the_bitmap.read(stream_source, helpers.zigimg_test_allocator);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(the_bitmap.width(), 1250);
@@ -146,9 +158,11 @@ test "Sun-Raster 1-bit black & white uncompressed" {
 
     var the_bitmap = ras.RAS{};
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const pixels = try the_bitmap.read(&stream_source, helpers.zigimg_test_allocator);
+    const pixels = try the_bitmap.read(stream_source, helpers.zigimg_test_allocator);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(the_bitmap.width(), 1250);
@@ -165,9 +179,11 @@ test "Sun-Raster bgr24 rle compressed" {
 
     var the_bitmap = ras.RAS{};
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const pixels = try the_bitmap.read(&stream_source, helpers.zigimg_test_allocator);
+    const pixels = try the_bitmap.read(stream_source, helpers.zigimg_test_allocator);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(the_bitmap.width(), 664);

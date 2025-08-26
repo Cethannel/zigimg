@@ -21,9 +21,11 @@ test "Should error on non PNG images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const invalidFile = png.PNG.readImage(helpers.zigimg_test_allocator, &stream_source);
+    const invalidFile = png.PNG.readImage(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalidFile, ImageReadError.InvalidData);
 }
@@ -111,9 +113,11 @@ test "png: Indexed PNG with transparency (Aseprite output)" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "png/aseprite_indexed_transparent.png");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var png_image = try png.PNG.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var png_image = try png.PNG.readImage(helpers.zigimg_test_allocator, stream_source);
     defer png_image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expect(png_image.pixels == .indexed8);

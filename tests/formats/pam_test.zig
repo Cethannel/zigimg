@@ -9,9 +9,11 @@ test "rejects non-PAM images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalid, Image.ReadError.InvalidData);
 }
@@ -20,9 +22,11 @@ test "rejects PAM images with unsupported depth" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/unsupported_depth.pam");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalid, Image.ReadError.Unsupported);
 }
@@ -31,9 +35,11 @@ test "rejects PAM images with invalid maxval" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/invalid_maxval.pam");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalid, Image.ReadError.InvalidData);
 }
@@ -42,9 +48,11 @@ test "rejects PAM images with component values greater than maxval" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/value_greater_than_maxval.pam");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     try helpers.expectError(invalid, Image.ReadError.InvalidData);
 }
 
@@ -52,9 +60,11 @@ test "rejects PAM images with unknown tuple type" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/unknown_tupletype.pam");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalid, Image.ReadError.Unsupported);
 }
@@ -63,9 +73,11 @@ test "rejects PAM images with invalid first token" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/invalid_first_token.pam");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalid, Image.ReadError.InvalidData);
 }
@@ -74,9 +86,11 @@ test "rejects PAM images with tuple type not matching other parameters" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/non_matching_tuple_type.pam");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    const invalid = pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalid, Image.ReadError.InvalidData);
 }
@@ -84,9 +98,11 @@ test "rejects PAM images with tuple type not matching other parameters" {
 test "accepts comments" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/simple_blackandwhite_comments.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 4), image.height);
@@ -104,9 +120,11 @@ test "accepts comments" {
 test "reads blackandwhite pam" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/simple_blackandwhite.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 4), image.height);
@@ -124,9 +142,11 @@ test "reads blackandwhite pam" {
 test "reads blackandwhite_alpha pam" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/simple_blackandwhite_alpha.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 4), image.height);
@@ -144,9 +164,11 @@ test "reads blackandwhite_alpha pam" {
 test "reads grayscale pam with maxval 255" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/simple_grayscale_maxval_255.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 4), image.height);
@@ -164,9 +186,11 @@ test "reads grayscale pam with maxval 255" {
 test "reads grayscale alpha pam with maxval 255" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/simple_grayscale_alpha_maxval_255.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 4), image.height);
@@ -184,9 +208,11 @@ test "reads grayscale alpha pam with maxval 255" {
 test "read of rgb pam with maxval 255" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/horse.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 843750), image.pixels.len());
@@ -195,9 +221,11 @@ test "read of rgb pam with maxval 255" {
 test "basic read-write-read produces same result" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/simple_grayscale_alpha_maxval_255.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 4), image.height);
@@ -238,9 +266,11 @@ test "basic read-write-read produces same result" {
 test "reads rgba pam with maxval 255" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/simple_rgba_maxval_255.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 4), image.pixels.len());
@@ -255,9 +285,11 @@ test "reads rgba pam with maxval 255" {
 test "reads rgba pam with maxval 65535" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "pam/simple_rgba_maxval_65535.pam");
     defer file.close();
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
-    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, &stream_source);
+    var image = try pam.PAM.readImage(helpers.zigimg_test_allocator, stream_source);
     defer image.deinit(helpers.zigimg_test_allocator);
 
     try std.testing.expectEqual(@as(usize, 4), image.pixels.len());

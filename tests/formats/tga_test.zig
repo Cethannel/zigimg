@@ -12,11 +12,13 @@ test "Should error on non TGA images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const invalidFile = tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const invalidFile = tga_file.read(helpers.zigimg_test_allocator, stream_source);
 
     try helpers.expectError(invalidFile, ImageReadError.InvalidData);
 }
@@ -25,11 +27,13 @@ test "Read ubw8 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/ubw8.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 128);
@@ -61,11 +65,13 @@ test "Read ucm8 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/ucm8.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 128);
@@ -105,11 +111,13 @@ test "Read utc16 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/utc16.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 128);
@@ -143,11 +151,13 @@ test "Read utc24 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/utc24.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 128);
@@ -181,11 +191,13 @@ test "Read utc32 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/utc32.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 128);
@@ -219,11 +231,13 @@ test "Read cbw8 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/cbw8.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 128);
@@ -255,11 +269,13 @@ test "Read ccm8 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/ccm8.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 128);
@@ -299,11 +315,13 @@ test "Read ctc24 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/ctc24.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 128);
@@ -337,11 +355,13 @@ test "Read matte-01 TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/matte-01.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 1280);
@@ -381,11 +401,13 @@ test "Read font TGA file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/font.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 192);
@@ -407,11 +429,13 @@ test "Read stopsignsmall TGA v1 file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/stopsignsmall.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 216);
@@ -431,11 +455,13 @@ test "Read stopsignsmallcompressed TGA v1 file" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "tga/stopsignsmallcompressed.tga");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var tga_file = tga.TGA{};
 
-    const pixels = try tga_file.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try tga_file.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(tga_file.width(), 216);

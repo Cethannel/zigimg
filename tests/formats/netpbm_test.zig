@@ -11,11 +11,13 @@ test "Load ASCII PBM image" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "netpbm/pbm_ascii.pbm");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pbmFile = netpbm.PBM{};
 
-    const pixels = try pbmFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pbmFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pbmFile.header.width, 8);
@@ -32,11 +34,13 @@ test "Load binary PBM image" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "netpbm/pbm_binary.pbm");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pbmFile = netpbm.PBM{};
 
-    const pixels = try pbmFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pbmFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pbmFile.header.width, 8);
@@ -53,11 +57,13 @@ test "Load ASCII PGM 8-bit grayscale image" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "netpbm/pgm_ascii_grayscale8.pgm");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pgmFile = netpbm.PGM{};
 
-    const pixels = try pgmFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pgmFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pgmFile.header.width, 16);
@@ -74,11 +80,13 @@ test "Load Binary PGM 8-bit grayscale image" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "netpbm/pgm_binary_grayscale8.pgm");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pgmFile = netpbm.PGM{};
 
-    const pixels = try pgmFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pgmFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pgmFile.header.width, 16);
@@ -95,11 +103,13 @@ test "Load ASCII PGM 16-bit grayscale image" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "netpbm/pgm_ascii_grayscale16.pgm");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pgmFile = netpbm.PGM{};
 
-    const pixels = try pgmFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pgmFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pgmFile.header.width, 8);
@@ -116,11 +126,13 @@ test "Load Binary PGM 16-bit grayscale image" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "netpbm/pgm_binary_grayscale16.pgm");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var pgmFile = netpbm.PGM{};
 
-    const pixels = try pgmFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try pgmFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(pgmFile.header.width, 8);
@@ -137,11 +149,13 @@ test "Load ASCII PPM image" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "netpbm/ppm_ascii_rgb24.ppm");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var ppmFile = netpbm.PPM{};
 
-    const pixels = try ppmFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try ppmFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(ppmFile.header.width, 27);
@@ -175,11 +189,13 @@ test "Load binary PPM image" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "netpbm/ppm_binary_rgb24.ppm");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var ppmFile = netpbm.PPM{};
 
-    const pixels = try ppmFile.read(helpers.zigimg_test_allocator, &stream_source);
+    const pixels = try ppmFile.read(helpers.zigimg_test_allocator, stream_source);
     defer pixels.deinit(helpers.zigimg_test_allocator);
 
     try helpers.expectEq(ppmFile.header.width, 27);

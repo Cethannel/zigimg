@@ -41,10 +41,12 @@ test "Farbfeld: invalid file format" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "farbfeld/dragon.png");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var buffer: [1024]u8 = @splat(0);
+    var reader = file.reader(buffer[0..]);
+    const stream_source = &reader.interface;
 
     var farbfeld_image = farbfeld.Farbfeld{};
-    const image_error = farbfeld_image.read(helpers.zigimg_test_allocator, &stream_source);
+    const image_error = farbfeld_image.read(helpers.zigimg_test_allocator, stream_source);
 
     try std.testing.expectError(ImageUnmanaged.ReadError.InvalidData, image_error);
 }
