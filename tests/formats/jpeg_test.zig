@@ -11,7 +11,7 @@ test "Should error on non JPEG images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
@@ -31,7 +31,7 @@ test "Read JFIF header properly and decode simple Huffman stream" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "jpeg/huff_simple0.jpg");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
@@ -61,7 +61,7 @@ test "Read the tuba properly" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "jpeg/tuba.jpg");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
@@ -96,7 +96,7 @@ test "Read grayscale images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "jpeg/grayscale_sample0.jpg");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();
@@ -141,7 +141,7 @@ test "Read subsampling images" {
             var tst_file = try idir.openFile(entry.name, .{ .mode = .read_only });
             defer tst_file.close();
 
-            var stream = Image.Stream{ .file = tst_file };
+            var stream_buffer: [1024]u8 = @splat(0); const stream_file_reader = tst_file.reader(&stream_buffer); var stream = stream_file_reader.interface;
 
             var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
             defer jpeg_file.deinit();
@@ -184,7 +184,7 @@ test "Read progressive jpeg with restart intervals" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "jpeg/tuba_restart_prog.jpg");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
     var jpeg_file = jpeg.JPEG.init(helpers.zigimg_test_allocator);
     defer jpeg_file.deinit();

@@ -21,7 +21,9 @@ test "Should error on non PNG images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     const invalidFile = png.PNG.readImage(helpers.zigimg_test_allocator, &stream_source);
 
@@ -31,7 +33,7 @@ test "Should error on non PNG images" {
 test "loadHeader_valid" {
     const expectEqual = std.testing.expectEqual;
     var buffer = valid_header_data.*;
-    var stream = Image.Stream{ .buffer = std.io.fixedBufferStream(&buffer) };
+    var stream = std.io.Reader.fixed(&buffer);
     const header = try png.loadHeader(&stream);
     try expectEqual(@as(u32, 0xff), header.width);
     try expectEqual(@as(u32, 0x75), header.height);
@@ -111,7 +113,9 @@ test "png: Indexed PNG with transparency (Aseprite output)" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "png/aseprite_indexed_transparent.png");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var png_image = try png.PNG.readImage(helpers.zigimg_test_allocator, &stream_source);
     defer png_image.deinit(helpers.zigimg_test_allocator);
@@ -186,7 +190,9 @@ test "png: Don't write tRNS chunk in indexed format when there is no alpha" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var check_trns_processor: CheckTrnsPresentProcessor = .{};
 
@@ -224,7 +230,9 @@ test "png: Write tRNS chunk in indexed format only when alpha is present" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var check_trns_processor: CheckTrnsPresentProcessor = .{};
 
@@ -268,7 +276,9 @@ test "png: Write indexed1 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -320,7 +330,9 @@ test "png: Write indexed2 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -372,7 +384,9 @@ test "png: Write indexed4 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -424,7 +438,9 @@ test "png: Write indexed8 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -467,7 +483,9 @@ test "png: Write grayscale1 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -503,7 +521,9 @@ test "png: Write grayscale2 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -539,7 +559,9 @@ test "png: Write grayscale4 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -575,7 +597,9 @@ test "png: Write grayscale8 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -612,7 +636,9 @@ test "png: Write grayscale8Alpha format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -649,7 +675,9 @@ test "png: Write grayscale16 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -686,7 +714,9 @@ test "png: Write grayscale16Alpha format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -725,7 +755,9 @@ test "png: Write rgb24 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -766,7 +798,9 @@ test "png: Write rgba32 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -807,7 +841,9 @@ test "png: Write rgb48 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -848,7 +884,9 @@ test "png: Write rgba64 format" {
     const read_file = try helpers.testOpenFile(image_file_name);
     defer read_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = read_file };
+    var stream_source_buffer: [1024]u8 = @splat(0);
+    const stream_source_file_reader = read_file.reader(&stream_source_buffer);
+    var stream_source = stream_source_file_reader.interface;
 
     var options = png.DefaultOptions.init(.{});
 
@@ -884,7 +922,9 @@ pub fn testWithDir(directory: []const u8, testMd5Sig: bool) !void {
             if (testMd5Sig) std.debug.print("Testing file {s} ... ", .{entry.name});
             var tst_file = try idir.openFile(entry.name, .{ .mode = .read_only });
             defer tst_file.close();
-            var stream = Image.Stream{ .file = tst_file };
+            var stream_buffer: [1024]u8 = @splat(0);
+            const stream_file_reader = tst_file.reader(&stream_buffer);
+            var stream = stream_file_reader.interface;
             if (entry.name[0] == 'x' and entry.name[2] != 't' and entry.name[2] != 's') {
                 try std.testing.expectError(Image.ReadError.InvalidData, png.loadHeader(&stream));
                 if (testMd5Sig) std.debug.print("OK\n", .{});
@@ -969,7 +1009,9 @@ test "InfoProcessor on Png Test suite" {
 
             var tst_file = try idir.openFile(entry.name, .{ .mode = .read_only });
             defer tst_file.close();
-            var stream = Image.Stream{ .file = tst_file };
+            var stream_buffer: [1024]u8 = @splat(0);
+            const stream_file_reader = tst_file.reader(&stream_buffer);
+            var stream = stream_file_reader.interface;
             if (entry.name[0] == 'x') {
                 continue;
             }

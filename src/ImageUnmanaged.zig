@@ -1,5 +1,5 @@
 const std = @import("std");
-pub const Stream = std.fs.File.Reader;
+pub const Stream = std.io.Reader;
 
 const color = @import("color.zig");
 const FormatInterface = @import("FormatInterface.zig");

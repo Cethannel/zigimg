@@ -10,7 +10,7 @@ test "Farbfeld: Check dimension file" {
         const yellow_file = try helpers.testOpenFile(helpers.fixtures_path ++ "farbfeld/yellow-1x1-semitransparent.png.ff");
         defer yellow_file.close();
 
-        var yellow_stream_source = std.io.StreamSource{ .file = yellow_file };
+        var yellow_stream_source_buffer: [1024]u8 = @splat(0); const yellow_stream_source_file_reader = yellow_file.reader(&yellow_stream_source_buffer); var yellow_stream_source = yellow_stream_source_file_reader.interface;
 
         var yellow_image = farbfeld.Farbfeld{};
         const yellow_pixels = try yellow_image.read(helpers.zigimg_test_allocator, &yellow_stream_source);
@@ -25,7 +25,7 @@ test "Farbfeld: Check dimension file" {
         const dragon_file = try helpers.testOpenFile(helpers.fixtures_path ++ "farbfeld/dragon.ff");
         defer dragon_file.close();
 
-        var dragon_stream_source = std.io.StreamSource{ .file = dragon_file };
+        var dragon_stream_source_buffer: [1024]u8 = @splat(0); const dragon_stream_source_file_reader = dragon_file.reader(&dragon_stream_source_buffer); var dragon_stream_source = dragon_stream_source_file_reader.interface;
 
         var dragon_image = farbfeld.Farbfeld{};
         const dragon_pixels = try dragon_image.read(helpers.zigimg_test_allocator, &dragon_stream_source);
@@ -41,7 +41,7 @@ test "Farbfeld: invalid file format" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "farbfeld/dragon.png");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
     var farbfeld_image = farbfeld.Farbfeld{};
     const image_error = farbfeld_image.read(helpers.zigimg_test_allocator, &stream_source);
@@ -53,7 +53,7 @@ test "Farbfeld: read writeImage output" {
     const source_file = try helpers.testOpenFile(helpers.fixtures_path ++ "farbfeld/yellow-1x1-semitransparent.png.ff");
     defer source_file.close();
 
-    var source_stream_source = std.io.StreamSource{ .file = source_file };
+    var source_stream_source_buffer: [1024]u8 = @splat(0); const source_stream_source_file_reader = source_file.reader(&source_stream_source_buffer); var source_stream_source = source_stream_source_file_reader.interface;
 
     var source_image: farbfeld.Farbfeld = .{};
     const source_pixels = try source_image.read(helpers.zigimg_test_allocator, &source_stream_source);

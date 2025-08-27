@@ -11,7 +11,7 @@ test "Should error on non GIF images" {
     const file = try helpers.testOpenFile(helpers.fixtures_path ++ "bmp/simple_v4.bmp");
     defer file.close();
 
-    var stream_source = std.io.StreamSource{ .file = file };
+    var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
     var gif_file = gif.GIF.init(helpers.zigimg_test_allocator);
     defer gif_file.deinit();
@@ -61,7 +61,7 @@ test "Rotating Earth GIF" {
     const gif_input_file = try helpers.testOpenFile(helpers.fixtures_path ++ "gif/rotating_earth.gif");
     defer gif_input_file.close();
 
-    var stream_source = std.io.StreamSource{ .file = gif_input_file };
+    var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = gif_input_file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
     var gif_file = gif.GIF.init(helpers.zigimg_test_allocator);
     defer gif_file.deinit();
@@ -234,7 +234,7 @@ fn doGifTest(entry_name: []const u8) !void {
         const gif_input_file = try helpers.testOpenFile(gif_input_filepath);
         defer gif_input_file.close();
 
-        var stream_source = std.io.StreamSource{ .file = gif_input_file };
+        var stream_source_buffer: [1024]u8 = @splat(0); const stream_source_file_reader = gif_input_file.reader(&stream_source_buffer); var stream_source = stream_source_file_reader.interface;
 
         var gif_file = gif.GIF.init(helpers.zigimg_test_allocator);
         defer gif_file.deinit();
